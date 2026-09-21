@@ -1,0 +1,135 @@
+.promo-cards {
+    --promo-gap: 24px;
+    --promo-radius: 12px;
+    --promo-accent: #1f6feb;
+    --promo-hot: #e5383b;
+    --promo-super: #7b2cbf;
+    --promo-text: #1c1c1e;
+    --promo-muted: #6b7280;
+    --promo-border: #e5e7eb;
+
+    margin: 0 auto;
+    color: var(--promo-text);
+}
+
+.promo-cards__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--promo-gap);
+}
+
+.promo-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--promo-border);
+    border-radius: var(--promo-radius);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.promo-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+}
+
+.promo-card--hot {
+    border-color: var(--promo-hot);
+}
+
+.promo-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: #f3f4f6;
+}
+
+.promo-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promo-card__image--empty {
+    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+}
+
+.promo-card__badges {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.promo-card__badge {
+    padding: 4px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #fff;
+    background: var(--promo-accent);
+    border-radius: 999px;
+}
+
+.promo-card__badge--super {
+    background: var(--promo-super);
+}
+
+.promo-card__badge--hot {
+    background: var(--promo-hot);
+}
+
+.promo-card__discount {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    padding: 6px 12px;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--promo-hot);
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+}
+
+.promo-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+}
+
+.promo-card__title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.3;
+}
+
+.promo-card__link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.promo-card__link:hover {
+    color: var(--promo-accent);
+}
+
+.promo-card__text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--promo-muted);
+}
+
+.promo-card__date {
+    margin-top: auto;
+    font-size: 13px;
+    color: var(--promo-muted);
+}
+
+.promo-card--hot .promo-card__date {
+    font-weight: 600;
+    color: var(--promo-hot);
+}
