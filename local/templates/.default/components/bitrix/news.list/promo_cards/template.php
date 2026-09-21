@@ -122,7 +122,7 @@ $elementDeleteParams = ['CONFIRM' => Loc::getMessage('PROMO_CARDS_DELETE_CONFIRM
 
                         <?php if ($hasLink): ?>
                             <span class="promo-card__more" aria-hidden="true">
-                                <?= Loc::getMessage('PROMO_CARDS_MORE') ?>
+                                <span class="promo-card__more-text"><?= Loc::getMessage('PROMO_CARDS_MORE') ?></span>
                                 <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                             </span>
                         <?php endif; ?>
