@@ -1,46 +1,141 @@
-.promo-cards {
-    --promo-gap: 24px;
-    --promo-radius: 12px;
-    --promo-accent: #1f6feb;
-    --promo-hot: #e5383b;
-    --promo-super: #7b2cbf;
-    --promo-text: #1c1c1e;
-    --promo-muted: #6b7280;
-    --promo-border: #e5e7eb;
+/* ==========================================================================
+   Шаблон promo_cards — блок «Акции и спецпредложения»
+   ========================================================================== */
 
-    margin: 0 auto;
+@property --promo-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+.promo-cards {
+    --promo-gap: 28px;
+    --promo-radius: 22px;
+    --promo-text: #14142b;
+    --promo-muted: #6e7191;
+    --promo-surface: #fff;
+    --promo-hot-1: #ff2e63;
+    --promo-hot-2: #ff8a00;
+    --promo-hot-3: #ffd23f;
+    --promo-super-1: #7f5af0;
+    --promo-super-2: #ff4ecd;
+    --promo-good-1: #00b894;
+    --promo-good-2: #00cec9;
+    --promo-ease: cubic-bezier(.2, .8, .2, 1);
+
     color: var(--promo-text);
 }
 
 .promo-cards__list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
     gap: var(--promo-gap);
 }
 
+/* --- Карточка ------------------------------------------------------------ */
+
 .promo-card {
+    --rx: 0deg;
+    --ry: 0deg;
+    --mx: 50%;
+    --my: 0%;
+
+    position: relative;
     display: flex;
     flex-direction: column;
+    isolation: isolate;
     overflow: hidden;
-    background: #fff;
-    border: 1px solid var(--promo-border);
+    background: var(--promo-surface);
+    border: 1px solid rgba(20, 20, 43, .07);
     border-radius: var(--promo-radius);
-    transition: box-shadow .2s ease, transform .2s ease;
+    box-shadow:
+        0 1px 2px rgba(20, 20, 43, .04),
+        0 12px 32px -12px rgba(20, 20, 43, .18);
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition:
+        transform .5s var(--promo-ease),
+        translate .5s var(--promo-ease),
+        box-shadow .5s var(--promo-ease);
 }
 
 .promo-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .08);
-    transform: translateY(-2px);
+    translate: 0 -8px;
+    box-shadow:
+        0 2px 4px rgba(20, 20, 43, .05),
+        0 30px 60px -18px rgba(20, 20, 43, .35);
 }
 
-.promo-card--hot {
-    border-color: var(--promo-hot);
+/* Блик, следующий за курсором (переменные --mx/--my задаёт script.js) */
+.promo-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: radial-gradient(420px circle at var(--mx) var(--my), rgba(255, 255, 255, .28), transparent 45%);
+    opacity: 0;
+    transition: opacity .4s ease;
 }
+
+.promo-card:hover::after {
+    opacity: 1;
+}
+
+/* «Горящая» акция: вращающаяся градиентная рамка и пульсирующее свечение */
+.promo-card--hot {
+    border: 2px solid transparent;
+    background:
+        linear-gradient(var(--promo-surface), var(--promo-surface)) padding-box,
+        conic-gradient(from var(--promo-angle), var(--promo-hot-1), var(--promo-hot-2), var(--promo-hot-3), var(--promo-hot-2), var(--promo-hot-1)) border-box;
+    animation:
+        promo-spin 4s linear infinite,
+        promo-glow 2.4s ease-in-out infinite;
+}
+
+.promo-card--ended {
+    filter: grayscale(1);
+    opacity: .6;
+}
+
+/* Появление при прокрутке (класс --animated ставит script.js, без JS карточки видны сразу) */
+.promo-cards--animated .promo-card:not(.is-visible) {
+    opacity: 0;
+}
+
+.promo-cards--animated .promo-card.is-visible {
+    animation-name: promo-in;
+    animation-duration: .8s;
+    animation-timing-function: var(--promo-ease);
+    animation-delay: calc(var(--i, 0) % 4 * 110ms);
+    animation-fill-mode: backwards;
+}
+
+.promo-cards--animated .promo-card--hot.is-visible {
+    animation-name: promo-in, promo-spin, promo-glow;
+    animation-duration: .8s, 4s, 2.4s;
+    animation-timing-function: var(--promo-ease), linear, ease-in-out;
+    animation-iteration-count: 1, infinite, infinite;
+}
+
+/* --- Картинка ------------------------------------------------------------ */
 
 .promo-card__media {
     position: relative;
-    aspect-ratio: 16 / 10;
-    background: #f3f4f6;
+}
+
+.promo-card__picture {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #ede9fe, #fce7f3);
+}
+
+.promo-card__picture::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 10, 30, .35) 0%, transparent 35%, transparent 60%, rgba(10, 10, 30, .45) 100%);
+    pointer-events: none;
 }
 
 .promo-card__image {
@@ -48,64 +143,164 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform: scale(1.02);
+    transition: transform 1.2s var(--promo-ease), filter 1.2s var(--promo-ease);
+}
+
+.promo-card:hover .promo-card__image {
+    transform: scale(1.12) rotate(.6deg);
+    filter: saturate(1.15);
 }
 
 .promo-card__image--empty {
-    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at 20% 20%, #ffd6e8 0, transparent 45%),
+        radial-gradient(circle at 80% 30%, #c7d2fe 0, transparent 50%),
+        radial-gradient(circle at 50% 90%, #a7f3d0 0, transparent 50%),
+        linear-gradient(135deg, #f5f3ff, #fdf2f8);
 }
+
+.promo-card__image--empty span {
+    font-size: 96px;
+    font-weight: 800;
+    color: rgba(127, 90, 240, .35);
+}
+
+/* Световая полоса, пробегающая по картинке при наведении */
+.promo-card__shine {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%);
+    translate: -120% 0;
+    pointer-events: none;
+}
+
+.promo-card:hover .promo-card__shine {
+    translate: 120% 0;
+    transition: translate 1s var(--promo-ease);
+}
+
+/* --- Бейджи -------------------------------------------------------------- */
 
 .promo-card__badges {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
 }
 
 .promo-card__badge {
-    padding: 4px 10px;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    line-height: 1.2;
     color: #fff;
-    background: var(--promo-accent);
     border-radius: 999px;
+    box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45);
+    backdrop-filter: blur(8px);
+}
+
+.promo-card__badge[hidden] {
+    display: none;
+}
+
+.promo-card__badge--default {
+    background: linear-gradient(135deg, var(--promo-good-1), var(--promo-good-2));
 }
 
 .promo-card__badge--super {
-    background: var(--promo-super);
+    background: linear-gradient(110deg, var(--promo-super-1), var(--promo-super-2), var(--promo-super-1));
+    background-size: 200% 100%;
+    animation: promo-shimmer 3s linear infinite;
 }
 
 .promo-card__badge--hot {
-    background: var(--promo-hot);
+    background: linear-gradient(135deg, var(--promo-hot-1), var(--promo-hot-2));
+    animation: promo-heartbeat 1.6s ease-in-out infinite;
 }
+
+.promo-card__badge--hot::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: 0 0 0 0 rgba(255, 46, 99, .7);
+    animation: promo-ring 1.6s ease-out infinite;
+}
+
+/* --- Наклейка со скидкой ------------------------------------------------- */
 
 .promo-card__discount {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
-    padding: 6px 12px;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--promo-hot);
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+    right: 18px;
+    bottom: -34px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 78px;
+    height: 78px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--promo-hot-1), var(--promo-hot-2));
+    border: 4px solid var(--promo-surface);
+    border-radius: 50%;
+    box-shadow: 0 12px 24px -8px rgba(255, 46, 99, .65);
+    rotate: -12deg;
+    transition: rotate .6s var(--promo-ease), scale .6s var(--promo-ease);
 }
+
+.promo-card:hover .promo-card__discount {
+    rotate: 8deg;
+    scale: 1.12;
+}
+
+.promo-card__discount-value {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1;
+}
+
+.promo-card__discount-value small {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.promo-card--hot .promo-card__discount {
+    animation: promo-wobble 3s ease-in-out infinite;
+}
+
+/* --- Текст --------------------------------------------------------------- */
 
 .promo-card__body {
     display: flex;
     flex: 1;
     flex-direction: column;
-    gap: 8px;
-    padding: 16px;
+    gap: 10px;
+    padding: 22px 22px 20px;
 }
 
 .promo-card__title {
+    display: -webkit-box;
     margin: 0;
-    font-size: 18px;
-    line-height: 1.3;
+    padding-right: 80px;
+    overflow: hidden;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    line-height: 1.25;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .promo-card__link {
@@ -113,23 +308,162 @@
     text-decoration: none;
 }
 
-.promo-card__link:hover {
-    color: var(--promo-accent);
+/* Вся карточка кликабельна */
+.promo-card__link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
 }
 
 .promo-card__text {
+    display: -webkit-box;
+    overflow: hidden;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--promo-muted);
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
-.promo-card__date {
+.promo-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     margin-top: auto;
-    font-size: 13px;
-    color: var(--promo-muted);
+    padding-top: 8px;
 }
 
-.promo-card--hot .promo-card__date {
+.promo-card__timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 12.5px;
     font-weight: 600;
-    color: var(--promo-hot);
+    font-variant-numeric: tabular-nums;
+    color: var(--promo-muted);
+    background: #f4f4fb;
+    border-radius: 10px;
+}
+
+.promo-card__timer-icon {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.promo-card--hot .promo-card__timer {
+    color: var(--promo-hot-1);
+    background: #fff0f4;
+}
+
+.promo-card--hot .promo-card__timer-icon {
+    animation: promo-tick 1s steps(2) infinite;
+}
+
+.promo-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--promo-super-1);
+}
+
+.promo-card__more svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: translate .4s var(--promo-ease);
+}
+
+.promo-card:hover .promo-card__more svg {
+    translate: 5px 0;
+}
+
+/* --- Анимации ------------------------------------------------------------ */
+
+@keyframes promo-in {
+    from {
+        opacity: 0;
+        translate: 0 40px;
+        scale: .94;
+    }
+}
+
+@keyframes promo-spin {
+    to {
+        --promo-angle: 360deg;
+    }
+}
+
+@keyframes promo-glow {
+    0%, 100% {
+        box-shadow: 0 12px 32px -12px rgba(255, 46, 99, .35);
+    }
+    50% {
+        box-shadow: 0 18px 48px -10px rgba(255, 138, 0, .55);
+    }
+}
+
+@keyframes promo-shimmer {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes promo-heartbeat {
+    0%, 60%, 100% {
+        scale: 1;
+    }
+    15% {
+        scale: 1.08;
+    }
+    30% {
+        scale: .98;
+    }
+    45% {
+        scale: 1.05;
+    }
+}
+
+@keyframes promo-ring {
+    to {
+        box-shadow: 0 0 0 10px rgba(255, 46, 99, 0);
+    }
+}
+
+@keyframes promo-wobble {
+    0%, 100% {
+        rotate: -12deg;
+    }
+    50% {
+        rotate: -4deg;
+    }
+}
+
+@keyframes promo-tick {
+    50% {
+        rotate: 12deg;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .promo-cards *,
+    .promo-cards *::before,
+    .promo-cards *::after,
+    .promo-card {
+        animation: none !important;
+        transition: none !important;
+    }
 }

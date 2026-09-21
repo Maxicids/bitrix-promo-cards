@@ -17,21 +17,15 @@ $templateDir = $root . '/local/templates/.default/components/bitrix/news.list/pr
 
 date_default_timezone_set('Europe/Moscow');
 
-/** Картинка-заглушка (SVG data URI), чтобы демо не зависело от внешних ресурсов. */
-function demoPicture(string $emoji, string $from, string $to): array
+/** Фото с Unsplash (бесплатная лицензия, хотлинк разрешён). */
+function demoPicture(string $photoId, string $alt): array
 {
-    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">'
-        . '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
-        . '<stop offset="0" stop-color="' . $from . '"/><stop offset="1" stop-color="' . $to . '"/>'
-        . '</linearGradient></defs><rect width="640" height="400" fill="url(#g)"/>'
-        . '<text x="320" y="235" font-size="140" text-anchor="middle">' . $emoji . '</text></svg>';
-
     return [
-        'ID' => crc32($emoji),
-        'SRC' => 'data:image/svg+xml;base64,' . base64_encode($svg),
-        'WIDTH' => 640,
-        'HEIGHT' => 400,
-        'ALT' => '',
+        'ID' => crc32($photoId),
+        'SRC' => 'https://images.unsplash.com/photo-' . $photoId . '?auto=format&fit=crop&w=800&h=600&q=80',
+        'WIDTH' => 800,
+        'HEIGHT' => 600,
+        'ALT' => $alt,
     ];
 }
 
@@ -69,18 +63,22 @@ $arResult = [
     'USER_HAVE_ACCESS' => true,
     'NAV_STRING' => '',
     'ITEMS' => [
-        demoItem(1, 'Чёрная пятница в сентябре', 'Скидка на всю технику до конца недели. Успейте забрать лучшие позиции.',
-            $at('+1 day'), 35, demoPicture('🛒', '#ffd6a5', '#ff9a8b')),
-        demoItem(2, 'Кофе к завтраку', 'Вторая чашка в подарок при заказе до 11:00.',
-            $at('+2 days 20 hours'), 15, demoPicture('☕', '#e9d5ff', '#c4b5fd')),
-        demoItem(3, 'Осенняя распродажа обуви', 'Новая коллекция по специальным ценам.',
-            $at('+10 days'), 25, demoPicture('👟', '#bbf7d0', '#86efac'), 'Выгода'),
-        demoItem(4, 'Ровно 20% на аксессуары', 'Граничный случай: скидка ровно 20% — это ещё «Выгода».',
-            $at('+3 days 1 hour'), '20', demoPicture('🎒', '#bae6fd', '#7dd3fc')),
-        demoItem(5, 'Подписка на полгода', 'Дата без времени и скидка строкой «22,5» — всё нормализуется.',
-            (new DateTime('+30 days'))->format('d.m.Y'), '22,5', null),
-        demoItem(6, 'Абонемент в бассейн', 'Последний день акции — метка «Заканчивается!».',
-            $at('+5 hours'), 10, demoPicture('🏊', '#fde68a', '#fca5a5'), 'Суперцена'),
+        demoItem(1, 'Большая осенняя распродажа', 'Скидки на одежду, обувь и аксессуары во всех магазинах сети. Успейте забрать лучшие позиции.',
+            $at('+1 day 6 hours'), 40, demoPicture('1513884923967-4b182ef167ab', 'Пакеты с покупками')),
+        demoItem(2, 'Вторая чашка кофе в подарок', 'Закажите любой напиток до 11:00, и второй сварим бесплатно.',
+            $at('+2 days 20 hours'), 15, demoPicture('1506372023823-741c83b836fe', 'Капучино')),
+        demoItem(3, 'Кроссовки новой коллекции', 'Лёгкие беговые модели по специальной цене для участников клуба.',
+            $at('+10 days'), 25, demoPicture('1600185365483-26d7a4cc7519', 'Кроссовки')),
+        demoItem(4, 'Рюкзаки к учебному году', 'Скидка ровно 20% — по правилам это ещё «Выгода», а не «Суперцена».',
+            $at('+3 days 4 hours'), '20', demoPicture('1553062407-98eeb64c6a62', 'Рюкзак')),
+        demoItem(5, 'Музыка без рекламы на полгода', 'Подписка со скидкой 22,5% и беспроводные наушники в подарок.',
+            (new DateTime('+30 days'))->format('d.m.Y'), '22,5', demoPicture('1505740420928-5e560c06d30e', 'Наушники')),
+        demoItem(6, 'Абонемент в бассейн', 'Последние часы акции: безлимитное посещение и сауна включены.',
+            $at('+5 hours'), 10, demoPicture('1530549387789-4c1017266635', 'Пловец в бассейне'), 'Суперцена'),
+        demoItem(7, 'Пицца 2+1', 'Третья пицца бесплатно при заказе через сайт или приложение.',
+            $at('+6 days'), 33, demoPicture('1513104890138-7c749659a591', 'Пицца')),
+        demoItem(8, 'СПА-день для двоих', 'Массаж, чайная церемония и бассейн — идеальный подарок.',
+            $at('+1 day 20 hours'), 30, demoPicture('1544161515-4ab6ce6db874', 'Массаж в СПА')),
     ],
 ];
 
@@ -88,10 +86,14 @@ $template = new CBitrixComponentTemplate($templateDir);
 $html = $template->render($arParams, $arResult);
 
 $outDir = $argv[1] ?? null;
-$cssHref = $outDir ? 'style.css' : null;
-$css = $cssHref ? '' : '<style>' . file_get_contents($templateDir . '/style.css') . '</style>';
-$cssLink = $cssHref ? '<link rel="stylesheet" href="' . $cssHref . '">' : '';
-$generatedAt = date('d.m.Y H:i');
+$css = file_get_contents($templateDir . '/style.css');
+$js = file_get_contents($templateDir . '/script.js');
+$assets = $outDir
+    ? '<link rel="stylesheet" href="style.css">'
+    : '<style>' . $css . '</style>';
+$scripts = $outDir
+    ? '<script src="script.js" defer></script>'
+    : '<script>' . $js . '</script>';
 
 $page = <<<HTML
 <!DOCTYPE html>
@@ -99,21 +101,55 @@ $page = <<<HTML
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Акции и спецпредложения — демо шаблона promo_cards</title>
-    {$cssLink}{$css}
+    <title>Акции и спецпредложения</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {$assets}
     <style>
-        body { margin: 0; padding: 32px 16px; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f9fafb; }
-        .demo { max-width: 1200px; margin: 0 auto; }
-        .demo h1 { margin: 0 0 8px; }
-        .demo p { margin: 0 0 24px; color: #6b7280; }
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: #f7f6fb;
+            overflow-x: hidden;
+        }
+        .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+        .bg span {
+            position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%;
+            filter: blur(90px); opacity: .45; animation: drift 22s ease-in-out infinite alternate;
+        }
+        .bg span:nth-child(1) { top: -18vmax; left: -12vmax; background: #c4b5fd; }
+        .bg span:nth-child(2) { top: 20vh; right: -18vmax; background: #fbcfe8; animation-delay: -7s; }
+        .bg span:nth-child(3) { bottom: -22vmax; left: 25vw; background: #a5f3fc; animation-delay: -14s; }
+        @keyframes drift { to { translate: 6vmax 8vmax; scale: 1.15; } }
+        .demo { max-width: 1240px; margin: 0 auto; padding: 72px 20px 96px; }
+        .demo__title {
+            margin: 0 0 48px;
+            font-size: clamp(34px, 6vw, 64px);
+            font-weight: 800;
+            letter-spacing: -.035em;
+            line-height: 1.02;
+            background: linear-gradient(100deg, #14142b 10%, #7f5af0 45%, #ff2e63 70%, #ff8a00 90%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: title 8s ease-in-out infinite alternate, rise .9s cubic-bezier(.2,.8,.2,1) both;
+        }
+        @keyframes title { to { background-position: 100% 0; } }
+        @keyframes rise { from { opacity: 0; translate: 0 24px; } }
+        @media (prefers-reduced-motion: reduce) { .bg span, .demo__title { animation: none; } }
     </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"><span></span><span></span><span></span></div>
 <main class="demo">
-    <h1>Акции и спецпредложения</h1>
-    <p>Демо-рендер шаблона <code>bitrix:news.list / promo_cards</code> на тестовых данных. Сгенерировано {$generatedAt} (МСК).</p>
+    <h1 class="demo__title">Акции и&nbsp;спецпредложения</h1>
     {$html}
 </main>
+{$scripts}
 </body>
 </html>
 HTML;
@@ -124,6 +160,7 @@ if ($outDir) {
     }
     file_put_contents($outDir . '/index.html', $page);
     copy($templateDir . '/style.css', $outDir . '/style.css');
+    copy($templateDir . '/script.js', $outDir . '/script.js');
     fwrite(STDERR, "Rendered to {$outDir}/index.html\n");
 } else {
     echo $page;
