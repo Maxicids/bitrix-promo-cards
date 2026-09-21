@@ -111,7 +111,7 @@ foreach ($arResult['ITEMS'] as &$arItem) {
     if (!empty($arItem['PREVIEW_PICTURE']) && is_array($arItem['PREVIEW_PICTURE'])) {
         $resized = CFile::ResizeImageGet(
             $arItem['PREVIEW_PICTURE'],
-            ['width' => 640, 'height' => 400],
+            ['width' => 800, 'height' => 600],
             BX_RESIZE_IMAGE_PROPORTIONAL,
             true
         );
