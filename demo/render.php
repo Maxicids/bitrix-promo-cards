@@ -18,11 +18,13 @@ $outDir = PHP_SAPI === 'cli' ? ($argv[1] ?? null) : null;
 [$arParams, $arResult] = require __DIR__ . '/fixtures.php';
 
 $content = (new CBitrixComponentTemplate($templateDir))->render($arParams, $arResult);
+$version = static fn (string $file): string => substr(md5_file($templateDir . '/' . $file), 0, 8);
+
 $styles = $outDir
-    ? '<link rel="stylesheet" href="style.css">'
+    ? '<link rel="stylesheet" href="style.css?v=' . $version('style.css') . '">'
     : '<style>' . file_get_contents($templateDir . '/style.css') . '</style>';
 $scripts = $outDir
-    ? '<script src="script.js" defer></script>'
+    ? '<script src="script.js?v=' . $version('script.js') . '" defer></script>'
     : '<script>' . file_get_contents($templateDir . '/script.js') . '</script>';
 
 ob_start();

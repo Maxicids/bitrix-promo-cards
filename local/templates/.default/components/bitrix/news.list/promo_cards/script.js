@@ -32,7 +32,10 @@
             return Promise.resolve();
         }
 
-        return document.startViewTransition(update).finished;
+        var transition = document.startViewTransition(update);
+        transition.ready.catch(function () {});
+
+        return transition.finished;
     }
 
     /**
