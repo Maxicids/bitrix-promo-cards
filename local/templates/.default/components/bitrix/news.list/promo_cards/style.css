@@ -587,9 +587,14 @@
     animation: none;
 }
 
+::view-transition-group(promo-panel) {
+    z-index: 1;
+}
+
 ::view-transition-group(promo-hero),
 ::view-transition-group(promo-badges),
 ::view-transition-group(promo-discount) {
+    z-index: 2;
     animation-duration: .4s;
     animation-timing-function: cubic-bezier(.3, .7, .1, 1);
 }
