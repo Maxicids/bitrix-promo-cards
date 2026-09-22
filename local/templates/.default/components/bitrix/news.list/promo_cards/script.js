@@ -32,10 +32,15 @@
             return Promise.resolve();
         }
 
+        var root = document.documentElement;
+        root.classList.add('promo-view-transition');
+
         var transition = document.startViewTransition(update);
         transition.ready.catch(function () {});
 
-        return transition.finished;
+        return transition.finished.finally(function () {
+            root.classList.remove('promo-view-transition');
+        });
     }
 
     /**
@@ -265,7 +270,8 @@
             var to = 1 - from;
 
             nameElements(pairs, from);
-            withViewTransition(function () {
+
+            return withViewTransition(function () {
                 nameElements(pairs, from, true);
                 update();
                 nameElements(pairs, to);
@@ -284,9 +290,17 @@
             });
         }
 
+        // Окно остаётся открытым, пока гаснет фон, и закрывается уже после перехода
         function close() {
+            if (dialog.classList.contains('is-closing')) {
+                return;
+            }
+
             morph(sharedElements(cards[current]), 1, function () {
+                dialog.classList.add('is-closing');
+            }).then(function () {
                 dialog.close();
+                dialog.classList.remove('is-closing');
                 ui.panel.style.translate = '';
                 document.documentElement.classList.remove('promo-modal-open');
             });
