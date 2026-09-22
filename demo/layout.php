@@ -44,6 +44,7 @@
             filter: blur(90px);
             opacity: .45;
             animation: page-drift 22s ease-in-out infinite alternate;
+            will-change: translate, scale;
         }
 
         .page-bg span:nth-child(1) {

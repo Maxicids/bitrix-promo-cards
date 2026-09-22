@@ -81,26 +81,6 @@
         }
     }
 
-    function initReveal(root, cards) {
-        if (reducedMotion || !('IntersectionObserver' in window)) {
-            return;
-        }
-
-        var observer = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, {threshold: 0.15});
-
-        root.classList.add('promo-cards--animated');
-        cards.forEach(function (card) {
-            observer.observe(card);
-        });
-    }
-
     function initTilt(cards) {
         if (reducedMotion || !finePointer) {
             return;
@@ -125,6 +105,63 @@
         });
     }
 
+    /**
+     * Свайпы для мобильной шторки: вниз — закрыть (шторка тянется за пальцем), влево/вправо — листать.
+     */
+    function bindSwipe(panel, handlers) {
+        var SWIPE_X = 60;
+        var SWIPE_DOWN = 100;
+        var gesture = null;
+
+        function delta(touch) {
+            return {x: touch.clientX - gesture.x, y: touch.clientY - gesture.y};
+        }
+
+        function canPullDown() {
+            return gesture.axis === 'y' && gesture.fromTop;
+        }
+
+        panel.addEventListener('touchstart', function (event) {
+            var touch = event.touches[0];
+            gesture = {x: touch.clientX, y: touch.clientY, axis: null, fromTop: panel.scrollTop <= 0};
+        }, {passive: true});
+
+        panel.addEventListener('touchmove', function (event) {
+            if (!gesture) {
+                return;
+            }
+
+            var d = delta(event.touches[0]);
+            if (!gesture.axis && Math.abs(d.x) + Math.abs(d.y) > 10) {
+                gesture.axis = Math.abs(d.x) > Math.abs(d.y) ? 'x' : 'y';
+            }
+            if (canPullDown() && d.y > 0) {
+                panel.classList.add('is-dragging');
+                panel.style.translate = '0 ' + d.y + 'px';
+            }
+        }, {passive: true});
+
+        panel.addEventListener('touchend', function (event) {
+            if (!gesture) {
+                return;
+            }
+
+            var d = delta(event.changedTouches[0]);
+
+            panel.classList.remove('is-dragging');
+
+            if (canPullDown() && d.y > SWIPE_DOWN) {
+                handlers.down();
+            } else {
+                panel.style.translate = '';
+                if (gesture.axis === 'x' && Math.abs(d.x) > SWIPE_X) {
+                    (d.x < 0 ? handlers.left : handlers.right)();
+                }
+            }
+            gesture = null;
+        });
+    }
+
     function initModal(root, cards) {
         var dialog = root.querySelector('[data-promo-modal]');
         if (!dialog || typeof dialog.showModal !== 'function') {
@@ -144,8 +181,37 @@
         };
         var current = 0;
 
-        function cardImage(card) {
-            return card.querySelector('.promo-card__image');
+        if (!reducedMotion && document.startViewTransition) {
+            dialog.setAttribute('data-morph', '');
+        }
+
+        function cardPicture(card) {
+            return card.querySelector('.promo-card__picture');
+        }
+
+        function modalPicture() {
+            return ui.image.hidden ? null : ui.image;
+        }
+
+        // Сначала показываем уже загруженное превью карточки, крупную картинку подменяем после загрузки
+        function renderImage(card) {
+            var preview = card.querySelector('img.promo-card__image');
+            var previewSrc = preview ? preview.currentSrc : '';
+            var fullSrc = card.dataset.detailPicture || '';
+
+            ui.image.src = previewSrc || fullSrc;
+            ui.image.alt = preview ? preview.alt : '';
+            ui.image.hidden = !ui.image.getAttribute('src');
+
+            if (fullSrc && fullSrc !== previewSrc) {
+                var loader = new Image();
+                loader.onload = function () {
+                    if (cards[current] === card) {
+                        ui.image.src = fullSrc;
+                    }
+                };
+                loader.src = fullSrc;
+            }
         }
 
         function syncTimer() {
@@ -158,14 +224,11 @@
 
         function render(index) {
             var card = cards[index];
-            var image = cardImage(card);
             var discount = card.querySelector('.promo-card__discount');
             var url = card.dataset.detailUrl;
 
             current = index;
-            ui.image.src = card.dataset.detailPicture || (image && image.currentSrc) || '';
-            ui.image.alt = image ? image.alt : '';
-            ui.image.hidden = !ui.image.getAttribute('src');
+            renderImage(card);
             ui.badges.innerHTML = card.querySelector('.promo-card__badges').innerHTML;
             ui.discount.innerHTML = discount ? discount.outerHTML : '';
             ui.title.textContent = card.querySelector('.promo-card__title').textContent.trim();
@@ -198,15 +261,16 @@
 
         function open(index) {
             render(index);
-            morph(cardImage(cards[index]), ui.image, function () {
+            morph(cardPicture(cards[index]), modalPicture(), function () {
                 dialog.showModal();
                 document.documentElement.classList.add('promo-modal-open');
             });
         }
 
         function close() {
-            morph(ui.image, cardImage(cards[current]), function () {
+            morph(modalPicture(), cardPicture(cards[current]), function () {
                 dialog.close();
+                ui.panel.style.translate = '';
                 document.documentElement.classList.remove('promo-modal-open');
             });
         }
@@ -265,6 +329,16 @@
             close();
         });
 
+        bindSwipe(ui.panel, {
+            left: function () {
+                step(1);
+            },
+            right: function () {
+                step(-1);
+            },
+            down: close
+        });
+
         root.addEventListener('promo:tick', function () {
             if (dialog.open) {
                 syncTimer();
@@ -276,7 +350,6 @@
         var cards = toArray(root.querySelectorAll('[data-promo-card]'));
 
         initTimers(root, cards);
-        initReveal(root, cards);
         initTilt(cards);
         initModal(root, cards);
     }
