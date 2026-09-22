@@ -2,7 +2,7 @@
     'use strict';
 
     var HOT_PERIOD = 3 * 86400;
-    var HERO_TRANSITION = 'promo-hero';
+    var IMAGE_DECODE_TIMEOUT = 300;
 
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -185,12 +185,34 @@
             dialog.setAttribute('data-morph', '');
         }
 
-        function cardPicture(card) {
-            return card.querySelector('.promo-card__picture');
+        // Элементы, которые «перелетают» между карточкой и окном: [в карточке, в окне, имя перехода]
+        function sharedElements(card) {
+            return [
+                [card.querySelector('.promo-card__picture'), ui.image.hidden ? null : ui.image, 'promo-hero'],
+                [card.querySelector('.promo-card__badges'), ui.badges, 'promo-badges'],
+                [card.querySelector('.promo-card__discount'), ui.discount.firstElementChild, 'promo-discount']
+            ];
         }
 
-        function modalPicture() {
-            return ui.image.hidden ? null : ui.image;
+        function nameElements(pairs, side, clear) {
+            pairs.forEach(function (pair) {
+                if (pair[side]) {
+                    pair[side].style.viewTransitionName = clear ? '' : pair[2];
+                }
+            });
+        }
+
+        function imageReady() {
+            if (ui.image.hidden || !ui.image.decode) {
+                return Promise.resolve();
+            }
+
+            return Promise.race([
+                ui.image.decode().catch(function () {}),
+                new Promise(function (resolve) {
+                    setTimeout(resolve, IMAGE_DECODE_TIMEOUT);
+                })
+            ]);
         }
 
         // Сначала показываем уже загруженное превью карточки, крупную картинку подменяем после загрузки
@@ -239,36 +261,31 @@
             syncTimer();
         }
 
-        function morph(from, to, update) {
-            if (from) {
-                from.style.viewTransitionName = HERO_TRANSITION;
-            }
+        function morph(pairs, from, update) {
+            var to = 1 - from;
 
+            nameElements(pairs, from);
             withViewTransition(function () {
-                if (from) {
-                    from.style.viewTransitionName = '';
-                }
+                nameElements(pairs, from, true);
                 update();
-                if (to) {
-                    to.style.viewTransitionName = HERO_TRANSITION;
-                }
+                nameElements(pairs, to);
             }).finally(function () {
-                if (to) {
-                    to.style.viewTransitionName = '';
-                }
+                nameElements(pairs, to, true);
             });
         }
 
         function open(index) {
             render(index);
-            morph(cardPicture(cards[index]), modalPicture(), function () {
-                dialog.showModal();
-                document.documentElement.classList.add('promo-modal-open');
+            imageReady().then(function () {
+                morph(sharedElements(cards[index]), 0, function () {
+                    dialog.showModal();
+                    document.documentElement.classList.add('promo-modal-open');
+                });
             });
         }
 
         function close() {
-            morph(modalPicture(), cardPicture(cards[current]), function () {
+            morph(sharedElements(cards[current]), 1, function () {
                 dialog.close();
                 ui.panel.style.translate = '';
                 document.documentElement.classList.remove('promo-modal-open');
