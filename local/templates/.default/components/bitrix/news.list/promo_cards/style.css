@@ -575,6 +575,7 @@
     top: 16px;
     right: 16px;
     z-index: 5;
+    view-transition-name: promo-close;
     width: 44px;
     height: 44px;
     background: rgba(255, 255, 255, .85);
@@ -589,6 +590,10 @@
 
 ::view-transition-group(promo-panel) {
     z-index: 1;
+}
+
+::view-transition-group(promo-close) {
+    z-index: 3;
 }
 
 ::view-transition-group(promo-hero),
