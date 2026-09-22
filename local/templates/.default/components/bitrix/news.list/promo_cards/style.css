@@ -596,6 +596,14 @@
     z-index: 3;
 }
 
+::view-transition-new(promo-close):only-child {
+    animation: promo-fade .2s ease .2s both;
+}
+
+.promo-modal[data-morph] .promo-modal__media:has(> .promo-modal__image:not([hidden])) {
+    background: transparent;
+}
+
 ::view-transition-group(promo-hero),
 ::view-transition-group(promo-badges),
 ::view-transition-group(promo-discount) {
@@ -671,11 +679,11 @@
     }
 
     ::view-transition-new(promo-panel):only-child {
-        animation-name: promo-sheet-in;
+        animation-name: promo-sheet-rise;
     }
 
     ::view-transition-old(promo-panel):only-child {
-        animation-name: promo-sheet-out;
+        animation-name: promo-sheet-fall;
     }
 
     .promo-modal__content {
@@ -712,9 +720,17 @@
     }
 }
 
-@keyframes promo-sheet-out {
+@keyframes promo-sheet-rise {
+    from {
+        opacity: 0;
+        translate: 0 48px;
+    }
+}
+
+@keyframes promo-sheet-fall {
     to {
-        translate: 0 100%;
+        opacity: 0;
+        translate: 0 48px;
     }
 }
 
