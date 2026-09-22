@@ -204,6 +204,7 @@
         function close() {
             morph(ui.image, cardImage(cards[current]), function () {
                 dialog.close();
+                document.documentElement.classList.remove('promo-modal-open');
             });
         }
 
@@ -259,10 +260,6 @@
         dialog.addEventListener('cancel', function (event) {
             event.preventDefault();
             close();
-        });
-
-        dialog.addEventListener('close', function () {
-            document.documentElement.classList.remove('promo-modal-open');
         });
 
         root.addEventListener('promo:tick', function () {
