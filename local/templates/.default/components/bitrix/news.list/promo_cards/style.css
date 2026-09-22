@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Шаблон promo_cards — блок «Акции и спецпредложения»
-   ========================================================================== */
-
 @property --promo-angle {
     syntax: '<angle>';
     inherits: false;
@@ -31,8 +27,6 @@
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
     gap: var(--promo-gap);
 }
-
-/* --- Карточка ------------------------------------------------------------ */
 
 .promo-card {
     --rx: 0deg;
@@ -65,7 +59,6 @@
         0 30px 60px -18px rgba(20, 20, 43, .35);
 }
 
-/* Блик, следующий за курсором (переменные --mx/--my задаёт script.js) */
 .promo-card::after {
     content: '';
     position: absolute;
@@ -81,7 +74,6 @@
     opacity: 1;
 }
 
-/* «Горящая» акция: вращающаяся градиентная рамка и пульсирующее свечение */
 .promo-card--hot {
     border: 2px solid transparent;
     background:
@@ -97,7 +89,6 @@
     opacity: .6;
 }
 
-/* Появление при прокрутке (класс --animated ставит script.js, без JS карточки видны сразу) */
 .promo-cards--animated .promo-card:not(.is-visible) {
     opacity: 0;
 }
@@ -116,8 +107,6 @@
     animation-timing-function: var(--promo-ease), linear, ease-in-out;
     animation-iteration-count: 1, infinite, infinite;
 }
-
-/* --- Картинка ------------------------------------------------------------ */
 
 .promo-card__media {
     position: relative;
@@ -155,6 +144,9 @@
 .promo-card__image--empty {
     display: grid;
     place-items: center;
+    font-size: 96px;
+    font-weight: 800;
+    color: rgba(127, 90, 240, .35);
     background:
         radial-gradient(circle at 20% 20%, #ffd6e8 0, transparent 45%),
         radial-gradient(circle at 80% 30%, #c7d2fe 0, transparent 50%),
@@ -162,13 +154,6 @@
         linear-gradient(135deg, #f5f3ff, #fdf2f8);
 }
 
-.promo-card__image--empty span {
-    font-size: 96px;
-    font-weight: 800;
-    color: rgba(127, 90, 240, .35);
-}
-
-/* Световая полоса, пробегающая по картинке при наведении */
 .promo-card__shine {
     position: absolute;
     inset: 0;
@@ -182,8 +167,6 @@
     translate: 120% 0;
     transition: translate 1s var(--promo-ease);
 }
-
-/* --- Бейджи -------------------------------------------------------------- */
 
 .promo-card__badges {
     position: absolute;
@@ -239,8 +222,6 @@
     animation: promo-ring 1.6s ease-out infinite;
 }
 
-/* --- Наклейка со скидкой ------------------------------------------------- */
-
 .promo-card__discount {
     position: absolute;
     right: 18px;
@@ -280,8 +261,6 @@
     animation: promo-wobble 3s ease-in-out infinite;
 }
 
-/* --- Текст --------------------------------------------------------------- */
-
 .promo-card__body {
     display: flex;
     flex: 1;
@@ -307,7 +286,6 @@
     text-decoration: none;
 }
 
-/* Вся карточка кликабельна */
 .promo-card__link::before {
     content: '';
     position: absolute;
@@ -357,12 +335,14 @@
     stroke-linecap: round;
 }
 
-.promo-card--hot .promo-card__timer {
+.promo-card--hot .promo-card__timer,
+.promo-modal__panel--hot .promo-card__timer {
     color: var(--promo-hot-1);
     background: #fff0f4;
 }
 
-.promo-card--hot .promo-card__timer-icon {
+.promo-card--hot .promo-card__timer-icon,
+.promo-modal__panel--hot .promo-card__timer-icon {
     animation: promo-tick 1s steps(2) infinite;
 }
 
@@ -385,15 +365,6 @@
     box-shadow: 0 10px 24px -8px rgba(255, 78, 205, .9);
 }
 
-.promo-card__more-text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-}
-
 .promo-card__more svg {
     width: 18px;
     height: 18px;
@@ -409,7 +380,317 @@
     translate: 3px 0;
 }
 
-/* --- Анимации ------------------------------------------------------------ */
+.promo-card {
+    cursor: pointer;
+}
+
+.promo-modal-open {
+    overflow: hidden;
+}
+
+.promo-modal {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 24px;
+    color: var(--promo-text);
+    background: transparent;
+    border: 0;
+}
+
+.promo-modal[open] {
+    display: grid;
+    place-items: center;
+}
+
+.promo-modal::backdrop {
+    background: rgba(14, 12, 30, .6);
+    backdrop-filter: blur(12px) saturate(1.2);
+    animation: promo-fade .35s ease both;
+}
+
+.promo-modal__panel {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    width: min(1000px, 100%);
+    max-height: calc(100dvh - 48px);
+    overflow: hidden;
+    background: var(--promo-surface);
+    border-radius: 28px;
+    box-shadow: 0 40px 120px -24px rgba(0, 0, 0, .55);
+    animation: promo-modal-in .5s var(--promo-ease) both;
+}
+
+.promo-modal__panel--hot {
+    box-shadow:
+        0 0 0 2px var(--promo-hot-2),
+        0 40px 120px -24px rgba(255, 46, 99, .55);
+}
+
+.promo-modal__media {
+    position: relative;
+    min-height: 420px;
+    background: linear-gradient(135deg, #ede9fe, #fce7f3);
+}
+
+.promo-modal__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promo-modal__media .promo-card__badges {
+    top: 20px;
+    left: 20px;
+}
+
+.promo-modal__media .promo-card__discount {
+    right: 24px;
+    bottom: 24px;
+    width: 104px;
+    height: 104px;
+}
+
+.promo-modal__media .promo-card__discount-value {
+    font-size: 30px;
+}
+
+.promo-modal__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 48px 40px 36px;
+    overflow-y: auto;
+}
+
+.promo-modal__content > * {
+    animation: promo-rise .6s var(--promo-ease) backwards;
+}
+
+.promo-modal__content > :nth-child(2) {
+    animation-delay: .08s;
+}
+
+.promo-modal__content > :nth-child(3) {
+    animation-delay: .16s;
+}
+
+.promo-modal__content > :nth-child(4) {
+    animation-delay: .24s;
+}
+
+.promo-modal__title {
+    margin: 0;
+    padding-right: 32px;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+}
+
+.promo-modal__text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--promo-muted);
+}
+
+.promo-modal__text p {
+    margin: 0 0 12px;
+}
+
+.promo-modal__text ul {
+    display: grid;
+    gap: 10px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.promo-modal__text li {
+    position: relative;
+    padding-left: 30px;
+    color: var(--promo-text);
+}
+
+.promo-modal__text li::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12l4 4 8-8'/%3E%3C/svg%3E") center / 14px no-repeat,
+        linear-gradient(135deg, var(--promo-good-1), var(--promo-good-2));
+    border-radius: 50%;
+}
+
+.promo-modal__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 12px;
+}
+
+.promo-modal__cta {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 0 28px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    background: linear-gradient(110deg, var(--promo-super-1), var(--promo-super-2), var(--promo-super-1));
+    background-size: 200% 100%;
+    border-radius: 16px;
+    box-shadow: 0 16px 32px -14px rgba(127, 90, 240, .9);
+    transition: background-position .6s var(--promo-ease), translate .3s var(--promo-ease);
+}
+
+.promo-modal__cta:hover {
+    translate: 0 -2px;
+    background-position: 100% 0;
+}
+
+.promo-modal__cta[hidden] {
+    display: none;
+}
+
+.promo-modal__cta svg,
+.promo-modal__button svg,
+.promo-modal__close svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.promo-modal__nav {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.promo-modal__button,
+.promo-modal__close {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    color: var(--promo-text);
+    cursor: pointer;
+    background: #f4f4fb;
+    border: 0;
+    border-radius: 50%;
+    transition: background .3s ease, color .3s ease, scale .3s var(--promo-ease), rotate .3s var(--promo-ease);
+}
+
+.promo-modal__button:hover,
+.promo-modal__close:hover {
+    color: #fff;
+    background: var(--promo-text);
+    scale: 1.08;
+}
+
+.promo-modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .35);
+}
+
+.promo-modal__close:hover {
+    rotate: 90deg;
+}
+
+::view-transition-group(promo-hero) {
+    animation-duration: .55s;
+    animation-timing-function: cubic-bezier(.2, .8, .2, 1);
+}
+
+::view-transition-old(promo-hero),
+::view-transition-new(promo-hero) {
+    height: 100%;
+    object-fit: cover;
+}
+
+@media (max-width: 760px) {
+    .promo-modal {
+        padding: 0;
+    }
+
+    .promo-modal[open] {
+        place-items: end stretch;
+    }
+
+    .promo-modal__panel {
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-height: 92dvh;
+        overflow-y: auto;
+        border-radius: 28px 28px 0 0;
+        animation-name: promo-sheet-in;
+    }
+
+    .promo-modal__media {
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+
+    .promo-modal__content {
+        padding: 28px 20px 24px;
+        overflow: visible;
+    }
+}
+
+@keyframes promo-fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes promo-modal-in {
+    from {
+        opacity: 0;
+        scale: .94;
+        translate: 0 24px;
+    }
+}
+
+@keyframes promo-sheet-in {
+    from {
+        translate: 0 100%;
+    }
+}
+
+@keyframes promo-rise {
+    from {
+        opacity: 0;
+        translate: 0 16px;
+    }
+}
 
 @keyframes promo-in {
     from {
@@ -480,7 +761,7 @@
     .promo-cards *,
     .promo-cards *::before,
     .promo-cards *::after,
-    .promo-card {
+    .promo-modal::backdrop {
         animation: none !important;
         transition: none !important;
     }

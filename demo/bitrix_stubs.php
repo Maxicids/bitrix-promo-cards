@@ -1,18 +1,19 @@
 <?php
 /**
- * Минимальные заглушки API 1С-Битрикс — только то, что использует шаблон promo_cards.
- * Нужны исключительно для демо-рендера без установленной CMS. На сайт не деплоятся.
+ * Минимальные заглушки API 1С-Битрикс — ровно то, что использует шаблон promo_cards.
+ * Нужны только для демо и тестов без CMS, на сайт не копируются.
  */
 
 namespace Bitrix\Main\Localization {
     class Loc
     {
+        private const LANG = 'ru';
+
         private static array $messages = [];
-        public static string $lang = 'ru';
 
         public static function loadMessages(string $file): void
         {
-            $langFile = dirname($file) . '/lang/' . self::$lang . '/' . basename($file);
+            $langFile = dirname($file) . '/lang/' . self::LANG . '/' . basename($file);
             if (is_file($langFile)) {
                 $MESS = [];
                 include $langFile;
@@ -31,7 +32,6 @@ namespace {
     const B_PROLOG_INCLUDED = true;
     const BX_RESIZE_IMAGE_PROPORTIONAL = 1;
 
-    /** Разбор даты в формате сайта (d.m.Y [H:i[:s]]). */
     function MakeTimeStamp(string $value)
     {
         foreach (['d.m.Y H:i:s', 'd.m.Y H:i', 'd.m.Y'] as $format) {
@@ -70,7 +70,6 @@ namespace {
         }
     }
 
-    /** Упрощённый CBitrixComponentTemplate: подключает result_modifier.php и template.php. */
     class CBitrixComponentTemplate
     {
         public function __construct(private string $folder)
@@ -79,11 +78,7 @@ namespace {
 
         public function render(array $arParams, array $arResult): string
         {
-            $templateFolder = $this->folder;
-
-            (function () use (&$arResult, $arParams) {
-                include $this->folder . '/result_modifier.php';
-            })();
+            include $this->folder . '/result_modifier.php';
 
             ob_start();
             include $this->folder . '/template.php';

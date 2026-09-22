@@ -28,6 +28,9 @@ jobs:
       - name: Lint
         run: find local promo demo -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: Lint JS
+        run: node --check local/templates/.default/components/bitrix/news.list/promo_cards/script.js
+
       - name: Test result_modifier logic
         run: php demo/test.php
 

@@ -9,16 +9,16 @@ $APPLICATION->IncludeComponent(
     'promo_cards',
     [
         'IBLOCK_TYPE' => 'content',
-        'IBLOCK_ID' => '5', // ID инфоблока «Акции» — заменить на актуальный
+        'IBLOCK_ID' => '5',
         'NEWS_COUNT' => '12',
         'SORT_BY1' => 'ACTIVE_TO',
         'SORT_ORDER1' => 'ASC',
         'SORT_BY2' => 'SORT',
         'SORT_ORDER2' => 'ASC',
         'FILTER_NAME' => '',
-        'FIELD_CODE' => ['PREVIEW_PICTURE', 'PREVIEW_TEXT', 'DATE_ACTIVE_TO'],
+        'FIELD_CODE' => ['PREVIEW_PICTURE', 'PREVIEW_TEXT', 'DETAIL_PICTURE', 'DETAIL_TEXT', 'DATE_ACTIVE_TO'],
         'PROPERTY_CODE' => ['DATE_ACTIVE_TO', 'DISCOUNT_PERCENT', 'BADGE'],
-        'CHECK_DATES' => 'Y', // закончившиеся акции не выводим
+        'CHECK_DATES' => 'Y',
         'DETAIL_URL' => '',
         'PREVIEW_TRUNCATE_LEN' => '160',
         'ACTIVE_DATE_FORMAT' => 'd.m.Y',
@@ -34,8 +34,7 @@ $APPLICATION->IncludeComponent(
         'PARENT_SECTION' => '',
         'PARENT_SECTION_CODE' => '',
         'INCLUDE_SUBSECTIONS' => 'Y',
-        // IS_HOT считается в result_modifier.php и попадает в кеш,
-        // поэтому время кеша держим небольшим (см. README.md)
+        // IS_HOT попадает в кеш вместе с $arResult — см. README.md
         'CACHE_TYPE' => 'A',
         'CACHE_TIME' => '3600',
         'CACHE_FILTER' => 'N',
