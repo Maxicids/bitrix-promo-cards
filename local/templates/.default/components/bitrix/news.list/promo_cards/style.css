@@ -171,7 +171,6 @@
     color: #fff;
     border-radius: 999px;
     box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .45);
-    backdrop-filter: blur(8px);
 }
 
 .promo-card__badge[hidden] {
@@ -599,8 +598,7 @@
     view-transition-name: promo-close;
     width: 44px;
     height: 44px;
-    background: rgba(255, 255, 255, .85);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, .92);
     box-shadow: 0 6px 18px -6px rgba(0, 0, 0, .35);
 }
 
