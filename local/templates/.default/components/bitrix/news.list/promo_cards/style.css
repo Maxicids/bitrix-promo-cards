@@ -641,7 +641,7 @@
     }
 
     .promo-modal__panel {
-        grid-template-columns: 1fr;
+        display: block;
         width: 100%;
         max-height: 92dvh;
         overflow-y: auto;
